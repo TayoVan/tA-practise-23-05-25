@@ -1,0 +1,179 @@
+package cats.puzzles;
+
+public class CatsPuzzleGame {
+
+    // ============ ЗАДАЧА 1: N КОТИКІВ НА NxN ДОШЦІ ============
+
+    public static class NCatsProblem {
+        private int n;
+        private int[][] board;
+        private boolean solved;
+
+        public NCatsProblem(int n) {
+            this.n = n;
+            this.board = new int[n][n];
+            this.solved = false;
+        }
+
+        public boolean solve() {
+            return placeCats(0);
+        }
+
+        private boolean placeCats(int row) {
+            if (row == n) {
+                solved = true;
+                return true;
+            }
+
+            for (int col = 0; col < n; col++) {
+                if (isSafe(row, col)) {
+                    board[row][col] = 1;
+
+                    if (placeCats(row + 1)) {
+                        return true;
+                    }
+
+                    board[row][col] = 0;
+                }
+            }
+            return false;
+        }
+
+        private boolean isSafe(int row, int col) {
+            for (int i = 0; i < n; i++) {
+                if (board[row][i] == 1 || board[i][col] == 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public void printSolution() {
+            if (!solved) {
+                System.out.println("Котики не захотіли сідати на " + n + "x" + n + " дошку!");
+                return;
+            }
+
+            System.out.println("Мур-р! Котики розмістились на " + n + "x" + n + " дошці:");
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    System.out.print(board[i][j] == 1 ? "🐾 " : ". ");
+                }
+                System.out.println();
+            }
+            System.out.println();
+        }
+    }
+
+    // ============ ЗАДАЧА 2: КОТИКИ, ЩО СТРИБАЮТЬ ПО ДІАГОНАЛІ ============
+
+    public static class NCatsDiagonalProblem {
+        private int n;
+        private int[][] board;
+        private boolean solved;
+
+        public NCatsDiagonalProblem(int n) {
+            this.n = n;
+            this.board = new int[n][n];
+            this.solved = false;
+        }
+
+        public boolean solve() {
+            return placeJumpingCats(0, 0, 0);
+        }
+
+        private boolean placeJumpingCats(int row, int col, int count) {
+            if (count == n) {
+                solved = true;
+                return true;
+            }
+
+            if (row == n) {
+                return false;
+            }
+
+            int nextRow = (col == n - 1) ? row + 1 : row;
+            int nextCol = (col == n - 1) ? 0 : col + 1;
+
+            if (isSafeDiagonal(row, col)) {
+                board[row][col] = 1;
+
+                if (placeJumpingCats(nextRow, nextCol, count + 1)) {
+                    return true;
+                }
+
+                board[row][col] = 0;
+            }
+
+            return placeJumpingCats(nextRow, nextCol, count);
+        }
+
+        private boolean isSafeDiagonal(int row, int col) {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (board[i][j] == 1 && Math.abs(i - row) == Math.abs(j - col)) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public void printSolution() {
+            if (!solved) {
+                System.out.println("Котячі стрибки не вдалися на дошці " + n + "x" + n + "!");
+                return;
+            }
+
+            System.out.println("Котики стрибнули на " + n + "x" + n + " дошку:");
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    System.out.print(board[i][j] == 1 ? "😺 " : ". ");
+                }
+                System.out.println();
+            }
+            System.out.println();
+        }
+    }
+
+    // ============ МЕЙН: ТЕСТИ ДЛЯ КОТИКІВ ============
+
+    public static void main(String[] args) {
+        System.out.println("=== МУР-МУР! КОТИКОВІ ЗАДАЧІ ===\n");
+
+        System.out.println("1. ЗАДАЧА ПРО КОТИКІВ:");
+        for (int n = 4; n <= 8; n++) {
+            System.out.println("--- Котяча дошка " + n + "x" + n + " ---");
+            NCatsProblem cats = new NCatsProblem(n);
+            if (cats.solve()) {
+                cats.printSolution();
+            } else {
+                System.out.println("Мяу! Не вдалося!\n");
+            }
+        }
+
+        System.out.println("\n2. КОТИКИ НА ДІАГОНАЛІ:");
+        for (int n = 4; n <= 6; n++) {
+            System.out.println("--- Котяча дошка " + n + "x" + n + " ---");
+            NCatsDiagonalProblem jumpCats = new NCatsDiagonalProblem(n);
+            if (jumpCats.solve()) {
+                jumpCats.printSolution();
+            } else {
+                System.out.println("Мяу... не стрибнули...\n");
+            }
+        }
+
+        System.out.println("\n=== ДЕМОНСТРАЦІЯ КОТИКІВ ===");
+
+        System.out.println("8 котиків на 8x8 дошці:");
+        NCatsProblem cats8 = new NCatsProblem(8);
+        cats8.solve();
+        cats8.printSolution();
+
+        System.out.println("8 стрибків котиків на 8x8 дошці:");
+        NCatsDiagonalProblem jumpCats8 = new NCatsDiagonalProblem(8);
+        jumpCats8.solve();
+        jumpCats8.printSolution();
+    }
+}
